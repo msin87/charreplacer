@@ -21,7 +21,7 @@ public class BenchMark {
     }
 
     @Benchmark
-    public String defaultReplaceChain() {
+    public String replaceAllChain() {
         return this.testString.replaceAll("\"", "'").replaceAll("\n", "").replace("[]", "{}");
     }
 
