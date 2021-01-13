@@ -2,8 +2,8 @@ package core;
 
 public class StringCharReplacer {
     private StringCharReplacer(){}
-    public static String convertComponentInputToTemplateValue(String componentInputContent) {
-        char[] testCharArray = componentInputContent.toCharArray();
+    public static String forLoopReplace(String inputString) {
+        char[] testCharArray = inputString.toCharArray();
         char[] result = new char[testCharArray.length];
         for (int inputIndex = 0, outputIndex = 0; inputIndex < testCharArray.length; inputIndex++, outputIndex++) {
             switch (testCharArray[inputIndex]) {

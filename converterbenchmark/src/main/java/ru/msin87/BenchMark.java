@@ -27,7 +27,7 @@ public class BenchMark {
 
     @Benchmark
     public String forLoopReplace() {
-        return StringCharReplacer.convertComponentInputToTemplateValue(testString);
+        return StringCharReplacer.forLoopReplace(testString);
     }
 
 }

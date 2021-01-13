@@ -6,7 +6,7 @@ public class ConverterTest {
     String testString = "Test\n[]asd.\"Test2\"[sdsdg].\"\".[\"s\"]Test\n[]asd.\"Test2\"[sdsdg].\"\".[\"s\"]Test\n[]asd.\"Test2\"[sdsdg].\"\".[\"s\"]Test\n[]asd.\"Test2\"[sdsdg].\"\".[\"s\"]Test\n[]asd.\"Test2\"[sdsdg].\"\".[\"s\"]Test\n[]asd.\"Test2\"[sdsdg].\"\".[\"s\"]Test\n[]asd.\"Test2\"[sdsdg].\"\".[\"s\"]Test\n[]asd.\"Test2\"[sdsdg].\"\".[\"s\"]Test\n[]asd.\"Test2\"[sdsdg].\"\".[\"s\"]";
     @Test
     public void convertComponentInputToTemplateValueTest(){
-        String resultString = StringCharReplacer.convertComponentInputToTemplateValue(testString);
+        String resultString = StringCharReplacer.forLoopReplace(testString);
         assertFalse(resultString.contains("\n"));
         assertFalse(resultString.contains("\""));
         assertFalse(resultString.contains("[]"));
@@ -20,6 +20,6 @@ public class ConverterTest {
                         .replaceAll("\"", "'")
                         .replaceAll("\n", "")
                         .replace("[]", "{}"),
-                StringCharReplacer.convertComponentInputToTemplateValue(testString));
+                StringCharReplacer.forLoopReplace(testString));
     }
 }
