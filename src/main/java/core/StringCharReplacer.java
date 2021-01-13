@@ -5,24 +5,26 @@ public class StringCharReplacer {
     public static String convertComponentInputToTemplateValue(String componentInputContent) {
         char[] testCharArray = componentInputContent.toCharArray();
         char[] result = new char[testCharArray.length];
-        for (int i = 0; i < testCharArray.length; i++) {
-            switch (testCharArray[i]) {
+        for (int inputIndex = 0, outputIndex = 0; inputIndex < testCharArray.length; inputIndex++, outputIndex++) {
+            switch (testCharArray[inputIndex]) {
                 case '"':
-                    result[i] = '\'';
+                    result[outputIndex] = '\'';
                     break;
                 case '\n':
+                    outputIndex--;
                     break;
                 case '[':
-                    if (i < testCharArray.length - 1 && testCharArray[i + 1] == ']') {
-                        result[i] = '{';
-                        result[i + 1] = '}';
-                        i++;
+                    if (inputIndex < testCharArray.length - 1 && testCharArray[inputIndex + 1] == ']') {
+                        result[outputIndex] = '{';
+                        result[outputIndex + 1] = '}';
+                        inputIndex++;
+                        outputIndex++;
                     } else {
-                        result[i] = testCharArray[i];
+                        result[outputIndex] = testCharArray[inputIndex];
                     }
                     break;
                 default:
-                    result[i] = testCharArray[i];
+                    result[outputIndex] = testCharArray[inputIndex];
             }
         }
         return new String(result).trim();
