@@ -1,4 +1,4 @@
-# Benchmark of several methods for replacing characters in a string.
+Benchmark of several methods for replacing characters in a string.
 
 ## Target
 
