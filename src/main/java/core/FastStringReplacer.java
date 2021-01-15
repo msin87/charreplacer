@@ -1,86 +1,69 @@
 package core;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class FastStringReplacer {
-    private final List<String> oldSequenceList;
-    private final List<String> newSequenceList;
-    private final List<String> deleteSequenceList;
-    private int inputIndex = 0;
-    private int outputIndex = 0;
-
-    public FastStringReplacer(List<String> oldSequenceList, List<String> newSequenceList, List<String> deleteSequenceList) {
-        this.oldSequenceList = oldSequenceList == null ? Collections.<String>emptyList() : oldSequenceList;
-        this.newSequenceList = newSequenceList == null ? Collections.<String>emptyList() : newSequenceList;
-        this.deleteSequenceList = deleteSequenceList == null ? Collections.<String>emptyList() : deleteSequenceList;
-        if ((this.oldSequenceList.size() != this.newSequenceList.size()))
-            throw new IllegalStateException("FastStringReplacer: sequence lists or pattern lists are not the same size");
+    private List<Replacement> patterns = new ArrayList<Replacement>();
+    public char[] expandArray(char[] sourceArray, int newSize) {
+        if (newSize <= sourceArray.length)
+            return sourceArray;
+        char[] tempArray = new char[newSize];
+        System.arraycopy(sourceArray, 0, tempArray, 0, sourceArray.length);
+        return tempArray;
     }
+    public FastStringReplacer(List<Replacement> patterns) {
+        this.patterns = patterns;
+        Collections.sort(this.patterns);
 
-    private void replacer(char[] targetCharArray, char[] resultCharArray) {
-        OLD_SEQ_LOOP:
-        for (int oldSeqIndex = 0; oldSeqIndex < oldSequenceList.size(); oldSeqIndex++) {
-            String oldSequence = oldSequenceList.get(oldSeqIndex);
-            if (oldSequence.length() > 1) {
-                if (inputIndex < targetCharArray.length - (oldSequence.length() - 1)) {
-                    char[] oldSeqCharArray = oldSequence.toCharArray();
-                    boolean skipLoop = true;
-                    for (int oldSeqCharIndex = 0; oldSeqCharIndex < oldSeqCharArray.length; oldSeqCharIndex++) {
-                        skipLoop &= targetCharArray[inputIndex + oldSeqCharIndex] != oldSeqCharArray[oldSeqCharIndex];
-                    }
-                    if (!skipLoop) {
-                        char[] newSeqCharArray = newSequenceList.get(oldSeqIndex).toCharArray();
-                        System.arraycopy(newSeqCharArray, 0, resultCharArray, outputIndex, newSeqCharArray.length);
-                        inputIndex += newSeqCharArray.length - 1;
-                        outputIndex += newSeqCharArray.length - 1;
-                    }
-                    else {
-                        for (int oldSeqCharIndex = 0; oldSeqCharIndex < oldSeqCharArray.length; oldSeqCharIndex++){
-                            resultCharArray[outputIndex] = targetCharArray[inputIndex];
-                            inputIndex++;
-                            outputIndex++;
+    }
+    public static class Replacement implements Comparable<Replacement> {
+        public String oldValue;
+        public String newValue;
+
+        public int compareTo(Replacement anotherReplacement) {
+            return anotherReplacement.oldValue.length() - this.oldValue.length();
+        }
+    }
+    public String execute(String inputString) {
+
+        char[] resultCharArray = new char[inputString.length()+10];
+        STRING_LOOP:
+        for (int stringCharIndex = 0, resultArrayIndex=0; stringCharIndex < inputString.length(); stringCharIndex++, resultArrayIndex++) {
+            boolean isFullMatch = true;
+            for (int patternIndex = 0; patternIndex < patterns.size(); patternIndex++) {
+                Replacement replacement = patterns.get(patternIndex);
+                char[] oldValueCharArray = replacement.oldValue.toCharArray();
+                for (int oldValueCharIndex = 0; oldValueCharIndex < oldValueCharArray.length; oldValueCharIndex++) {
+                    char oldValueChar = oldValueCharArray[oldValueCharIndex];
+                    if (oldValueChar != inputString.charAt(stringCharIndex)) {
+                        if (patternIndex == patterns.size() - 1) {
+
+                            resultCharArray[resultArrayIndex] = inputString.charAt(stringCharIndex);
+                        }
+                        break;
+                    } else {
+                        int tempOldValueCharIndex = oldValueCharIndex;
+                        int tempStringCharIndex = stringCharIndex;
+                        while (isFullMatch) {
+                            tempOldValueCharIndex++;
+                            tempStringCharIndex++;
+                            if (tempStringCharIndex == inputString.length() || tempOldValueCharIndex == oldValueCharArray.length)
+                                break;
+                            if (oldValueCharArray[tempOldValueCharIndex] != inputString.charAt(tempStringCharIndex)) {
+                                isFullMatch = false;
+                            }
+                        }
+                        if (isFullMatch) {
+                            resultString.append(replacement.newValue);
+                            stringCharIndex += replacement.oldValue.length() - 1;
+                            continue STRING_LOOP;
                         }
                     }
                 }
-            } else {
-                if (targetCharArray[inputIndex] == oldSequence.toCharArray()[0]) {
-                    resultCharArray[outputIndex] = newSequenceList.get(oldSeqIndex).toCharArray()[0];
-                    break;
-                }
             }
         }
-    }
-
-    private void deleter(char[] targetCharArray, char[] resultCharArray) {
-        DEL_SEQ_LOOP:
-        for (int delSeqIndex = 0; delSeqIndex < deleteSequenceList.size(); delSeqIndex++) {
-            String delSequence = deleteSequenceList.get(delSeqIndex);
-            if (delSequence.length() > 1) {
-                if (inputIndex < targetCharArray.length - (delSequence.length() - 1)) {
-                    char[] delSeqCharArray = delSequence.toCharArray();
-                    for (int delSeqCharIndex = 0; delSeqCharIndex < delSeqCharArray.length; delSeqCharIndex++) {
-                        if (targetCharArray[inputIndex + delSeqCharIndex] != delSeqCharArray[delSeqCharIndex])
-                            continue DEL_SEQ_LOOP;
-                    }
-                    inputIndex += delSeqCharArray.length;
-                }
-            } else {
-                if (targetCharArray[inputIndex] == delSequence.toCharArray()[0])
-                    inputIndex++;
-            }
-        }
-    }
-
-    public String execute(String targetString) {
-        char[] targetCharArray = targetString.toCharArray();
-        char[] resultCharArray = new char[targetCharArray.length];
-        inputIndex = 0;
-        outputIndex = 0;
-        for (inputIndex = 0, outputIndex = 0; inputIndex < targetCharArray.length; inputIndex++, outputIndex++) {
-            deleter(targetCharArray, resultCharArray);
-            replacer(targetCharArray, resultCharArray);
-        }
-        return new String(resultCharArray).trim();
+        return resultString.toString();
     }
 }

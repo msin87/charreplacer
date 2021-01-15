@@ -1,5 +1,7 @@
 package ru.msin87;
 
+import core.FastStringReplacer;
+import core.FastStringReplacerBuilder;
 import core.StringCharReplacer;
 import org.openjdk.jmh.annotations.*;
 
@@ -14,7 +16,15 @@ import java.util.concurrent.TimeUnit;
 public class BenchMark {
 
     String testString = "Test\n[]asd.\"Test2\"[sdsdg].\"\".[\"s\"]Test\n[]asd.\"Test2\"[sdsdg].\"\".[\"s\"]Test\n[]asd.\"Test2\"[sdsdg].\"\".[\"s\"]Test\n[]asd.\"Test2\"[sdsdg].\"\".[\"s\"]Test\n[]asd.\"Test2\"[sdsdg].\"\".[\"s\"]Test\n[]asd.\"Test2\"[sdsdg].\"\".[\"s\"]Test\n[]asd.\"Test2\"[sdsdg].\"\".[\"s\"]Test\n[]asd.\"Test2\"[sdsdg].\"\".[\"s\"]Test\n[]asd.\"Test2\"[sdsdg].\"\".[\"s\"]";
-
+    FastStringReplacer fastStringReplacer;
+    @Setup
+    public void doSetup(){
+        fastStringReplacer = new FastStringReplacerBuilder()
+                .replace("\"", "'")
+                .delete("\n")
+                .replace("[]", "{}")
+                .build();
+    }
     @Benchmark
     public String replaceChain() {
         return this.testString.replace('"', '\'').replace("\n", "").replace("[]", "{}");
@@ -30,4 +40,8 @@ public class BenchMark {
         return StringCharReplacer.forLoopReplace(testString);
     }
 
+    @Benchmark
+    public String fastStringReplacer(){
+        return fastStringReplacer.execute(testString);
+    }
 }

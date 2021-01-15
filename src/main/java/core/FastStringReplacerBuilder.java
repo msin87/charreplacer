@@ -5,24 +5,26 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 public class FastStringReplacerBuilder {
-    private final List<String> oldSequenceList = new ArrayList<String>(2);
-    private final List<String> newSequenceList = new ArrayList<String>(2);
-    private final List<String> deleteSequenceList = new ArrayList<String>(2);
-
+    private final List<FastStringReplacer.Replacement> patterns = new ArrayList<FastStringReplacer.Replacement>();
     public FastStringReplacerBuilder replace(String oldSequence, String newSequence) {
-        oldSequenceList.add(oldSequence);
-        newSequenceList.add(newSequence);
+        FastStringReplacer.Replacement replacement = new FastStringReplacer.Replacement();
+        replacement.oldValue = oldSequence;
+        replacement.newValue = newSequence;
+        patterns.add(replacement);
         return this;
     }
 
 
     public FastStringReplacerBuilder delete(String deleteSequence) {
-        deleteSequenceList.add(deleteSequence);
+        FastStringReplacer.Replacement replacement = new FastStringReplacer.Replacement();
+        replacement.oldValue = deleteSequence;
+        replacement.newValue = "";
+        patterns.add(replacement);
         return this;
     }
 
     public FastStringReplacer build() {
-        return new FastStringReplacer(oldSequenceList, newSequenceList, deleteSequenceList);
+        return new FastStringReplacer(patterns);
     }
 
 }
