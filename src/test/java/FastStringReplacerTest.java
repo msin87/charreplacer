@@ -29,8 +29,8 @@ public class FastStringReplacerTest {
                         .replace("[]", "{}")
                         .replace("zf", "xc")
                         .replaceAll("Te", "")
-                        .replaceAll("s", ""),
-                resultString
+                        .replaceAll("s", "")
+                ,resultString
         );
     }
 }

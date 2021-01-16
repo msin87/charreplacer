@@ -28,35 +28,49 @@ public class FastStringReplacer {
     }
     public String execute(String inputString) {
 
+        final int lastPatternIndex = patterns.size() - 1;
         char[] resultCharArray = new char[inputString.length()+10];
+        char[] inputArray = inputString.toCharArray();
+        int resultArrayIndex=0;
+        int resultLengthLimit = resultCharArray.length-2;
+        int tempOldValueCharIndex=0;
+        int tempStringCharIndex=0;
         STRING_LOOP:
-        for (int stringCharIndex = 0, resultArrayIndex=0; stringCharIndex < inputString.length(); stringCharIndex++, resultArrayIndex++) {
+        for (int stringCharIndex = 0; stringCharIndex < inputArray.length; stringCharIndex++) {
             boolean isFullMatch = true;
             for (int patternIndex = 0; patternIndex < patterns.size(); patternIndex++) {
                 Replacement replacement = patterns.get(patternIndex);
                 char[] oldValueCharArray = replacement.oldValue.toCharArray();
                 for (int oldValueCharIndex = 0; oldValueCharIndex < oldValueCharArray.length; oldValueCharIndex++) {
                     char oldValueChar = oldValueCharArray[oldValueCharIndex];
-                    if (oldValueChar != inputString.charAt(stringCharIndex)) {
-                        if (patternIndex == patterns.size() - 1) {
-
-                            resultCharArray[resultArrayIndex] = inputString.charAt(stringCharIndex);
+                    if (oldValueChar != inputArray[stringCharIndex]) {
+                        if (patternIndex == lastPatternIndex) {
+                            resultCharArray[resultArrayIndex] = inputArray[stringCharIndex];
+                            resultArrayIndex++;
                         }
                         break;
                     } else {
-                        int tempOldValueCharIndex = oldValueCharIndex;
-                        int tempStringCharIndex = stringCharIndex;
+                        tempOldValueCharIndex = oldValueCharIndex;
+                        tempStringCharIndex = stringCharIndex;
                         while (isFullMatch) {
                             tempOldValueCharIndex++;
                             tempStringCharIndex++;
-                            if (tempStringCharIndex == inputString.length() || tempOldValueCharIndex == oldValueCharArray.length)
+                            if (tempStringCharIndex == inputArray.length || tempOldValueCharIndex == oldValueCharArray.length)
                                 break;
-                            if (oldValueCharArray[tempOldValueCharIndex] != inputString.charAt(tempStringCharIndex)) {
+                            if (oldValueCharArray[tempOldValueCharIndex] != inputArray[tempStringCharIndex]) {
                                 isFullMatch = false;
                             }
                         }
                         if (isFullMatch) {
-                            resultString.append(replacement.newValue);
+                            char[] newValueArray = replacement.newValue.toCharArray();
+                            for (int newValueCharIndex=0; newValueCharIndex<newValueArray.length; newValueCharIndex++){
+                                resultCharArray[resultArrayIndex] = newValueArray[newValueCharIndex];
+                                resultArrayIndex++;
+                            }
+                            if (resultArrayIndex==resultLengthLimit){
+                                resultCharArray = expandArray(resultCharArray,resultCharArray.length+2);
+                                resultLengthLimit = resultCharArray.length - 2;
+                            }
                             stringCharIndex += replacement.oldValue.length() - 1;
                             continue STRING_LOOP;
                         }
@@ -64,6 +78,6 @@ public class FastStringReplacer {
                 }
             }
         }
-        return resultString.toString();
+        return new String(resultCharArray).trim();
     }
 }
